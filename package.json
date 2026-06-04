@@ -1,0 +1,27 @@
+{
+	"name": "tiny-idb-store",
+	"version": "0.1.0",
+	"private": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"test": "vitest run",
+		"check": "vitest run && tsc -p tsconfig.json"
+	},
+	"devDependencies": {
+		"fake-indexeddb": "^6.0.0",
+		"typescript": "~5.7.2",
+		"vitest": "^3.2.0"
+	},
+	"description": "Typed IndexedDB object-store wrapper with promise-based CRUD, bulk, cursor, range, and update helpers.",
+	"license": "MIT",
+	"files": [
+		"dist"
+	]
+}
