@@ -22,108 +22,108 @@ npm install tiny-idb-store
 import { BaseStore } from "tiny-idb-store";
 
 interface Note {
-	id?: number;
-	title: string;
+  id?: number;
+  title: string;
 }
 
 class NotesStore extends BaseStore {
-	constructor(db: IDBDatabase) {
-		super(db, "notes");
-	}
+  constructor(db: IDBDatabase) {
+    super(db, "notes");
+  }
 }
 
 class StorageService {
-	private static instance: StorageService | null = null;
+  private static instance: StorageService | null = null;
 
-	private db: IDBDatabase | null = null;
-	private notesStore: NotesStore | null = null;
-	private readonly name = "notes-db";
-	private readonly version = 1;
+  private db: IDBDatabase | null = null;
+  private notesStore: NotesStore | null = null;
+  private readonly name = "notes-db";
+  private readonly version = 1;
 
-	private constructor() {}
+  private constructor() {}
 
-	get notes(): NotesStore {
-		if (!this.notesStore) {
-			throw new Error("StorageService is not initialized.");
-		}
+  get notes(): NotesStore {
+    if (!this.notesStore) {
+      throw new Error("StorageService is not initialized.");
+    }
 
-		return this.notesStore;
-	}
+    return this.notesStore;
+  }
 
-	static async create(): Promise<StorageService> {
-		if (StorageService.instance) {
-			return StorageService.instance;
-		}
+  static async create(): Promise<StorageService> {
+    if (StorageService.instance) {
+      return StorageService.instance;
+    }
 
-		const instance = new StorageService();
-		await instance.initialize();
-		StorageService.instance = instance;
+    const instance = new StorageService();
+    await instance.initialize();
+    StorageService.instance = instance;
 
-		return instance;
-	}
+    return instance;
+  }
 
-	private async initialize(): Promise<void> {
-		this.db = await this.openConnection();
-		this.notesStore = new NotesStore(this.db);
-	}
+  private async initialize(): Promise<void> {
+    this.db = await this.openConnection();
+    this.notesStore = new NotesStore(this.db);
+  }
 
-	private openConnection(): Promise<IDBDatabase> {
-		return new Promise<IDBDatabase>((resolve, reject) => {
-			const connection = indexedDB.open(this.name, this.version);
+  private openConnection(): Promise<IDBDatabase> {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const connection = indexedDB.open(this.name, this.version);
 
-			connection.addEventListener("upgradeneeded", (event: IDBVersionChangeEvent) => {
-				const request = event.target as IDBOpenDBRequest;
-				const db = request.result;
-				const transaction = request.transaction;
+      connection.addEventListener("upgradeneeded", (event: IDBVersionChangeEvent) => {
+        const request = event.target as IDBOpenDBRequest;
+        const db = request.result;
+        const transaction = request.transaction;
 
-				if (!transaction) {
-					reject(new Error("Missing upgrade transaction."));
-					return;
-				}
+        if (!transaction) {
+          reject(new Error("Missing upgrade transaction."));
+          return;
+        }
 
-				switch (event.oldVersion) {
-					case 0:
-						db.createObjectStore("notes", { keyPath: "id", autoIncrement: true });
-						break;
-					default:
-						break;
-				}
-			});
+        switch (event.oldVersion) {
+          case 0:
+            db.createObjectStore("notes", { keyPath: "id", autoIncrement: true });
+            break;
+          default:
+            break;
+        }
+      });
 
-			connection.addEventListener(
-				"success",
-				() => {
-					const db = connection.result;
-					resolve(db);
+      connection.addEventListener(
+        "success",
+        () => {
+          const db = connection.result;
+          resolve(db);
 
-					db.addEventListener("close", () => {
-						alert("Database connection closed. Please reload the page.");
-					});
-					db.addEventListener("versionchange", () => {
-						db.close();
-						alert("Database is outdated. Please reload the page.");
-					});
-				},
-				{ once: true },
-			);
+          db.addEventListener("close", () => {
+            alert("Database connection closed. Please reload the page.");
+          });
+          db.addEventListener("versionchange", () => {
+            db.close();
+            alert("Database is outdated. Please reload the page.");
+          });
+        },
+        { once: true },
+      );
 
-			connection.addEventListener("error", () => reject(connection.error), { once: true });
-			connection.addEventListener(
-				"blocked",
-				() => {
-					alert(
-						"Database is outdated. The newer version can't be loaded until you close other tabs. Please reload the page.",
-					);
-				},
-				{ once: true },
-			);
-		});
-	}
+      connection.addEventListener("error", () => reject(connection.error), { once: true });
+      connection.addEventListener(
+        "blocked",
+        () => {
+          alert(
+            "Database is outdated. The newer version can't be loaded until you close other tabs. Please reload the page.",
+          );
+        },
+        { once: true },
+      );
+    });
+  }
 }
 
 const storage = await StorageService.create();
-const noteId = await storage.notes.add<Note>({ title: "My first note" });
-const note = await storage.notes.get<Note>(noteId);
+const noteId = await storage.notes.add({ title: "My first note" });
+const note = await storage.notes.get(noteId);
 console.log(note);
 ```
 
