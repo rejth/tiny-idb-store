@@ -1,8 +1,4 @@
-export const setByPath = (
-	record: Record<string, unknown>,
-	path: string,
-	value: unknown,
-): void => {
+export const setByPath = (record: Record<string, unknown>, path: string, value: unknown): void => {
 	let current = record;
 	const parts = path.split(".");
 

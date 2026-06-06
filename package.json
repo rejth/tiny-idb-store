@@ -12,14 +12,27 @@
 	"scripts": {
 		"build": "tsc -p tsconfig.json",
 		"test": "vitest run",
-		"check": "vitest run && tsc -p tsconfig.json"
+		"lint": "biome check . && oxlint",
+		"lint:fix": "biome check --write .",
+		"check": "npm run lint && vitest run && tsc -p tsconfig.json",
+		"prepublishOnly": "npm run check && npm run test && npm run build"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "^2.4.16",
 		"fake-indexeddb": "^6.0.0",
+		"oxlint": "^1.68.0",
 		"typescript": "~5.7.2",
 		"vitest": "^3.2.0"
 	},
 	"description": "Typed IndexedDB object-store wrapper with promise-based CRUD, bulk, cursor, range, and update helpers.",
+	"homepage": "https://github.com/rejth/tiny-idb-store#readme",
+	"bugs": {
+		"url": "https://github.com/rejth/tiny-idb-store/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rejth/tiny-idb-store.git"
+	},
 	"license": "MIT",
 	"files": [
 		"dist"
